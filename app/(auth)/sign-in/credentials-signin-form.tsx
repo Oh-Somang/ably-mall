@@ -1,6 +1,7 @@
 'use client'
+
 import { useSearchParams } from 'next/navigation'
-import { useFormState, useFormStatus } from 'react-dom'
+import { useActionState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,22 +11,13 @@ import { signInDefaultValues } from '@/lib/constants'
 import Link from 'next/link'
 
 export default function CredentialsSignInForm() {
-  const [data, action] = useFormState(signInWithCredentials, {
+  const [data, action, isPending] = useActionState(signInWithCredentials, {
     message: '',
     success: false,
   })
 
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/'
-
-  const SignInButton = () => {
-    const { pending } = useFormStatus()
-    return (
-      <Button disabled={pending} className="w-full" variant="default">
-        {pending ? 'Submitting...' : 'Sign In with credentials'}
-      </Button>
-    )
-  }
 
   return (
     <form action={action}>
@@ -53,7 +45,9 @@ export default function CredentialsSignInForm() {
           />
         </div>
         <div>
-          <SignInButton />
+          <Button disabled={isPending} className="w-full" variant="default">
+            {isPending ? 'Submitting...' : 'Sign In with credentials'}
+          </Button>
         </div>
 
         {data && !data.success && (

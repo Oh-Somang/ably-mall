@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-
 import ProductImages from '@/components/shared/product/product-images'
 import ProductPrice from '@/components/shared/product/product-price'
 import { Badge } from '@/components/ui/badge'
@@ -11,9 +10,10 @@ import { Button } from '@/components/ui/button'
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const product = await getProductBySlug(params.slug)
+  const { slug } = await params
+  const product = await getProductBySlug(slug)
   if (!product) {
     return { title: 'Product not found' }
   }
@@ -24,11 +24,14 @@ export async function generateMetadata({
 }
 
 const ProductDetails = async ({
-  params: { slug },
+  params,
+  searchParams,
 }: {
-  params: { slug: string }
-  searchParams: { page: string; color: string; size: string }
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ page: string; color: string; size: string }>
 }) => {
+  const { slug } = await params
+
   const product = await getProductBySlug(slug)
   if (!product) notFound()
 
@@ -40,9 +43,9 @@ const ProductDetails = async ({
             <ProductImages images={product.images!} />
           </div>
 
-          <div className="col-span-2 flex flex-col w-full  gap-8 p-5">
+          <div className="col-span-2 flex flex-col w-full gap-8 p-5">
             <div className="flex flex-col gap-6">
-              <p className="p-medium-16 rounded-full bg-grey-500/10   text-grey-500">
+              <p className="p-medium-16 rounded-full bg-grey-500/10 text-grey-500">
                 {product.brand} {product.category}
               </p>
               <h1 className="h3-bold">{product.name}</h1>
